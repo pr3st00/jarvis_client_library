@@ -6,6 +6,8 @@ import java.util.Properties;
 
 public class PropertiesHolder
 {
+	private static final String JARVIS_PROPERTIES = "jarvis.properties";
+	
 	private static Properties props = null;
 	private static PropertiesHolder instance = null;
 
@@ -27,7 +29,7 @@ public class PropertiesHolder
 
 	private void load() throws IOException
 	{
-		InputStream in = this.getClass().getClassLoader().getResourceAsStream("application.properties");
+		InputStream in = this.getClass().getClassLoader().getResourceAsStream(JARVIS_PROPERTIES);
 		props.load(in);
 	}
 
