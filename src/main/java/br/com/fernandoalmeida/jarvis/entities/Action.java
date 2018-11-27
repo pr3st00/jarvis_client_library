@@ -2,6 +2,12 @@ package br.com.fernandoalmeida.jarvis.entities;
 
 import java.util.List;
 
+/**
+ * Represents an action to be processed by Jarvis
+ * 
+ * @author Fernando Costa de Almeida
+ *
+ */
 public class Action
 {
 	public enum Actions

@@ -4,6 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Holds properties used during client runtime
+ * 
+ * @author Fernando Costa de Almeida
+ *
+ */
 public class PropertiesHolder
 {
 	private static final String JARVIS_PROPERTIES = "jarvis.properties";

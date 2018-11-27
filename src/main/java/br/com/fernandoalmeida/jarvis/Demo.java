@@ -1,17 +1,3 @@
-<h1 align="center">Jarvis Java client library</h1>
-
-<p>
-A client library for Jarvis written in JAVA, useful for home automation using Jarvis backend.
-</p>
-
-## Configuration
-<p>
-	Fill in the jarvis url in jarvis.properties
-</p>
-
-## Sample code
-<p>
-
 package br.com.fernandoalmeida.jarvis;
 
 import br.com.fernandoalmeida.jarvis.client.JarvisClient;
@@ -35,17 +21,3 @@ public class Demo
 	}
 
 }
-
-</p>
-
-## Current Release: v0.0.1
-
-## Current Feature Requests/Suggestions
-Pending..
-
-## License
-MIT
-
-## Author
-[Fernando Almeida] (fernando.c.almeida@gmail.com)
-

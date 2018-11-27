@@ -3,6 +3,12 @@ package br.com.fernandoalmeida.jarvis.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Holds multiple actions
+ * 
+ * @author Fernando Costa de Almeida
+ *
+ */
 public class MultipleActions
 {
 	List<Action> actions;
