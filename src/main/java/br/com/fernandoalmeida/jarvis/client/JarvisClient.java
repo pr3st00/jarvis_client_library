@@ -16,6 +16,7 @@ import br.com.fernandoalmeida.jarvis.entities.Action;
 import br.com.fernandoalmeida.jarvis.entities.Action.Actions;
 import br.com.fernandoalmeida.jarvis.entities.MultipleActions;
 import br.com.fernandoalmeida.jarvis.entities.Status;
+import br.com.fernandoalmeida.jarvis.exception.JarvisConfigurationException;
 
 /**
  * Jarvis client library
@@ -23,43 +24,59 @@ import br.com.fernandoalmeida.jarvis.entities.Status;
  * @author Fernando Costa de Almeida
  *
  */
-public class JarvisClient {
+public class JarvisClient
+{
 	private static final String AVAILABLE_STATUS = "available";
 	private static final String WEBCAM_SCRIPT_PROPERTY_NAME = "webcam_script.path";
 
-	private static String JARVIS_URL = null;
 	private static final Logger logger = LogManager.getLogger(JarvisClient.class);
 
-	public enum Services {
+	private static String JARVIS_URL = null;
+
+	public enum Services
+	{
 		STATUS("/status"), ACTIONS("/actions");
 
 		private final String uri;
 
-		private Services(String value) {
+		private Services(String value)
+		{
 			uri = value;
 		}
 
-		public String getUri() {
+		public String getUri()
+		{
 			return uri;
 		}
 	}
 
-	static {
-		try {
+	public JarvisClient() throws JarvisConfigurationException
+	{
+		initialize();
+	}
+
+	private void initialize() throws JarvisConfigurationException
+	{
+		try
+		{
 			JARVIS_URL = PropertiesHolder.getInstance().getProperty("jarvis.url") + "/api";
-		} catch (IOException e) {
+		} catch (IOException e)
+		{
 			logger.error(e);
+			throw new JarvisConfigurationException(e);
 		}
 	}
 
-	public boolean isJarvisAvailable() {
+	public boolean isJarvisAvailable()
+	{
 		Status status = ClientBuilder.newClient().target(JARVIS_URL).path(Services.STATUS.getUri())
 				.request(MediaType.APPLICATION_JSON).get(Status.class);
 
 		return AVAILABLE_STATUS.equals(status.getStatus());
 	}
 
-	public boolean takePhoto(String name) throws InterruptedException, IOException {
+	public boolean takePhoto(String name) throws InterruptedException, IOException
+	{
 		MultipleActions actions = new MultipleActions();
 
 		String script = PropertiesHolder.getInstance().getProperty(WEBCAM_SCRIPT_PROPERTY_NAME);
@@ -77,7 +94,8 @@ public class JarvisClient {
 
 	}
 
-	public boolean say(String message) throws InterruptedException {
+	public boolean say(String message) throws InterruptedException
+	{
 		MultipleActions actions = new MultipleActions();
 
 		actions.addAction(new Action("play", Actions.PLAY, Arrays.asList(message), true));
@@ -92,18 +110,22 @@ public class JarvisClient {
 		return response.getStatus() == 200;
 	}
 
-	public boolean say(String... messages) throws InterruptedException {
+	public boolean say(String... messages) throws InterruptedException
+	{
 		boolean success = true;
 
-		for (String message : messages) {
+		for (String message : messages)
+		{
 			success = success && say(message);
 		}
 
 		return success;
 	}
 
-	private void waitForJarvis() throws InterruptedException {
-		while (!isJarvisAvailable()) {
+	private void waitForJarvis() throws InterruptedException
+	{
+		while (!isJarvisAvailable())
+		{
 			logger.info("Waiting for jarvis...");
 			Thread.sleep(1000);
 		}

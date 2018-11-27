@@ -4,7 +4,8 @@ import java.util.List;
 
 public class Action
 {
-	public enum Actions {
+	public enum Actions
+	{
 		PLAY, EXECUTE
 	};
 

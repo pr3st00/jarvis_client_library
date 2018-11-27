@@ -7,7 +7,7 @@ import java.util.Properties;
 public class PropertiesHolder
 {
 	private static final String JARVIS_PROPERTIES = "jarvis.properties";
-	
+
 	private static Properties props = null;
 	private static PropertiesHolder instance = null;
 
