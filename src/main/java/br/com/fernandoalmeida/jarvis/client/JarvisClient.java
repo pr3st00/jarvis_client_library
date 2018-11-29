@@ -41,7 +41,7 @@ public class JarvisClient
 
 	public enum Services
 	{
-		STATUS("/status"), ACTIONS("/actions");
+		STATUS("/status"), ACTIONS("/actions"), ENABLE_SOUND("/enablesound"), DISABLE_SOUND("/disablesound");
 
 		private final String uri;
 
@@ -215,6 +215,32 @@ public class JarvisClient
 				logger.error(e);
 			}
 		}
+	}
+
+	/**
+	 * Enables the jarvis sound system
+	 * 
+	 * @return
+	 */
+	public boolean enableSound()
+	{
+		Response response = ClientBuilder.newClient().target(JARVIS_URL).path(Services.ENABLE_SOUND.getUri())
+				.request(MediaType.APPLICATION_JSON).get();
+
+		return response.getStatus() == 200;
+	}
+
+	/**
+	 * Disables the jarvis sound system
+	 * 
+	 * @return
+	 */
+	public boolean disableSound()
+	{
+		Response response = ClientBuilder.newClient().target(JARVIS_URL).path(Services.DISABLE_SOUND.getUri())
+				.request(MediaType.APPLICATION_JSON).get();
+
+		return response.getStatus() == 200;
 	}
 
 }
