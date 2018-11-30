@@ -39,6 +39,9 @@ public class JarvisClient
 
 	private static String JARVIS_URL = null;
 
+	/**
+	 * All Jarvis services
+	 */
 	public enum Services
 	{
 		STATUS("/status"), ACTIONS("/actions"), ENABLE_SOUND("/enablesound"), DISABLE_SOUND("/disablesound");
@@ -122,7 +125,6 @@ public class JarvisClient
 		waitForJarvis();
 
 		return response.getStatus() == 200;
-
 	}
 
 	/**
@@ -170,7 +172,7 @@ public class JarvisClient
 
 		actions.addAction(new Action("play", Actions.PLAY, Arrays.asList(message), true));
 
-		logger.info("Speak up jarvis.");
+		logger.info("Speak up Jarvis.");
 
 		Response response = ClientBuilder.newClient().target(JARVIS_URL).path(Services.ACTIONS.getUri())
 				.request(MediaType.APPLICATION_JSON).post(Entity.entity(actions, MediaType.APPLICATION_JSON));
@@ -205,7 +207,7 @@ public class JarvisClient
 	{
 		while (!isJarvisAvailable())
 		{
-			logger.info("Waiting for jarvis...");
+			logger.info("Waiting for Jarvis...");
 
 			try
 			{
@@ -218,12 +220,14 @@ public class JarvisClient
 	}
 
 	/**
-	 * Enables the jarvis sound system
+	 * Enables the Jarvis sound system
 	 * 
 	 * @return
 	 */
 	public boolean enableSound()
 	{
+		logger.info("Enabling sound system");
+
 		Response response = ClientBuilder.newClient().target(JARVIS_URL).path(Services.ENABLE_SOUND.getUri())
 				.request(MediaType.APPLICATION_JSON).get();
 
@@ -231,12 +235,14 @@ public class JarvisClient
 	}
 
 	/**
-	 * Disables the jarvis sound system
+	 * Disables the Jarvis sound system
 	 * 
 	 * @return
 	 */
 	public boolean disableSound()
 	{
+		logger.info("Disabling sound system");
+
 		Response response = ClientBuilder.newClient().target(JARVIS_URL).path(Services.DISABLE_SOUND.getUri())
 				.request(MediaType.APPLICATION_JSON).get();
 
