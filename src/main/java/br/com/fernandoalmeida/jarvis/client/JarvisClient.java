@@ -168,6 +168,18 @@ public class JarvisClient
 	 */
 	public boolean say(String message)
 	{
+		return say(message, true);
+	}
+
+	/**
+	 * Speak up the message provided
+	 * 
+	 * @param message
+	 * @param wait
+	 * @return
+	 */
+	public boolean say(String message, boolean wait)
+	{
 		MultipleActions actions = new MultipleActions();
 
 		actions.addAction(new Action("play", Actions.PLAY, Arrays.asList(message), true));
@@ -177,7 +189,8 @@ public class JarvisClient
 		Response response = ClientBuilder.newClient().target(JARVIS_URL).path(Services.ACTIONS.getUri())
 				.request(MediaType.APPLICATION_JSON).post(Entity.entity(actions, MediaType.APPLICATION_JSON));
 
-		waitForJarvis();
+		if (wait)
+			waitForJarvis();
 
 		return response.getStatus() == 200;
 	}
@@ -190,11 +203,23 @@ public class JarvisClient
 	 */
 	public boolean say(String... messages)
 	{
+		return say(true, messages);
+	}
+
+	/**
+	 * Speak up the message(s)
+	 * 
+	 * @param wait
+	 * @param messages
+	 * @return
+	 */
+	public boolean say(boolean wait, String... messages)
+	{
 		boolean success = true;
 
 		for (String message : messages)
 		{
-			success = success && say(message);
+			success = success && say(message, wait);
 		}
 
 		return success;

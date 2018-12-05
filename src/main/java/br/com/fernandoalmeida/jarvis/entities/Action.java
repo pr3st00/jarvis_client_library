@@ -1,6 +1,9 @@
 package br.com.fernandoalmeida.jarvis.entities;
 
+import java.io.Serializable;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents an action to be processed by Jarvis
@@ -8,8 +11,11 @@ import java.util.List;
  * @author Fernando Costa de Almeida
  *
  */
-public class Action
+@XmlRootElement
+public class Action implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	public enum Actions
 	{
 		PLAY, EXECUTE
@@ -19,6 +25,10 @@ public class Action
 	private Actions action;
 	private List<String> parameters;
 	private boolean synchronous;
+
+	public Action()
+	{
+	}
 
 	public Action(String code, Actions action, List<String> parameters, boolean syncrhonous)
 	{

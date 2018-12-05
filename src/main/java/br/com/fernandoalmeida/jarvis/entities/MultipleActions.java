@@ -1,7 +1,10 @@
 package br.com.fernandoalmeida.jarvis.entities;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Holds multiple actions
@@ -9,9 +12,16 @@ import java.util.List;
  * @author Fernando Costa de Almeida
  *
  */
-public class MultipleActions
+@XmlRootElement
+public class MultipleActions implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	List<Action> actions;
+
+	public MultipleActions()
+	{
+	}
 
 	public List<Action> getActions()
 	{
