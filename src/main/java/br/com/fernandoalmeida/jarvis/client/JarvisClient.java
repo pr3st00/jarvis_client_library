@@ -74,7 +74,8 @@ public class JarvisClient
 		try
 		{
 			JARVIS_URL = PropertiesHolder.getInstance().getProperty("jarvis.url") + "/api";
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			logger.error(e);
 			throw new JarvisConfigurationException(e);
@@ -108,7 +109,8 @@ public class JarvisClient
 		try
 		{
 			script = PropertiesHolder.getInstance().getProperty(WEBCAM_SCRIPT_PROPERTY_NAME);
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			throw new JarvisConfigurationException(e);
 		}
@@ -150,7 +152,8 @@ public class JarvisClient
 		{
 			formDataMultiPart.close();
 			multipart.close();
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			throw new JarvisRemoteException(e);
 		}
@@ -172,7 +175,7 @@ public class JarvisClient
 	}
 
 	/**
-	 * Speak up the message provided
+	 * Speak up the message provided. Wait for Jarvis if <code> wait </code> is true
 	 * 
 	 * @param message
 	 * @param wait
@@ -207,7 +210,7 @@ public class JarvisClient
 	}
 
 	/**
-	 * Speak up the message(s)
+	 * Speak up all the message(s). Wait for Jarvis if <code> wait </code> is true.
 	 * 
 	 * @param wait
 	 * @param messages
@@ -237,7 +240,8 @@ public class JarvisClient
 			try
 			{
 				Thread.sleep(1000);
-			} catch (InterruptedException e)
+			}
+			catch (InterruptedException e)
 			{
 				logger.error(e);
 			}

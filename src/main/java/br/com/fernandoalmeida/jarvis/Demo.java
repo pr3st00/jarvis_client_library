@@ -15,7 +15,7 @@ public class Demo
 	public static void main(String[] args) throws JarvisConfigurationException
 	{
 		JarvisClient client = new JarvisClient();
-		
+
 		// Make sure audio is enabled
 		client.enableSound();
 

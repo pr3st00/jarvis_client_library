@@ -22,6 +22,12 @@ public class PropertiesHolder
 		props = new Properties();
 	}
 
+	/**
+	 * Returns a singleton of this class
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
 	public static PropertiesHolder getInstance() throws IOException
 	{
 		if (instance == null)
@@ -33,12 +39,23 @@ public class PropertiesHolder
 		return instance;
 	}
 
+	/**
+	 * Loads the configuration from the properties file in the classpath.
+	 * 
+	 * @throws IOException
+	 */
 	private void load() throws IOException
 	{
 		InputStream in = this.getClass().getClassLoader().getResourceAsStream(JARVIS_PROPERTIES);
 		props.load(in);
 	}
 
+	/**
+	 * Returns the value of the property named <code> name </code>
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public String getProperty(String name)
 	{
 		return props.getProperty(name);
