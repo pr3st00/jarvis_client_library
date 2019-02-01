@@ -18,6 +18,7 @@ import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 
 import br.com.fernandoalmeida.jarvis.PropertiesHolder;
 import br.com.fernandoalmeida.jarvis.entities.Action;
+import br.com.fernandoalmeida.jarvis.entities.Language;
 import br.com.fernandoalmeida.jarvis.entities.Action.Actions;
 import br.com.fernandoalmeida.jarvis.entities.MultipleActions;
 import br.com.fernandoalmeida.jarvis.entities.Status;
@@ -44,7 +45,8 @@ public class JarvisClient
 	 */
 	public enum Services
 	{
-		STATUS("/status"), ACTIONS("/actions"), ENABLE_SOUND("/enablesound"), DISABLE_SOUND("/disablesound");
+		STATUS("/status"), ACTIONS("/actions"), ENABLE_SOUND("/enablesound"), DISABLE_SOUND("/disablesound"), LANGUAGE(
+				"/language");
 
 		private final String uri;
 
@@ -93,6 +95,19 @@ public class JarvisClient
 				.request(MediaType.APPLICATION_JSON).get(Status.class);
 
 		return AVAILABLE_STATUS.equals(status.getStatus());
+	}
+
+	/**
+	 * Returns the current language being used by Jarvis
+	 * 
+	 * @return
+	 */
+	public String getLanguage()
+	{
+		Language lang = ClientBuilder.newClient().target(JARVIS_URL).path(Services.LANGUAGE.getUri())
+				.request(MediaType.APPLICATION_JSON).get(Language.class);
+
+		return lang != null ? lang.getLanguage() : "undefined";
 	}
 
 	/**
