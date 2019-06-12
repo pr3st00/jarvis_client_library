@@ -33,12 +33,17 @@ import br.com.fernandoalmeida.jarvis.exception.JarvisRemoteException;
  */
 public class JarvisClient
 {
+	private static final String JARVIS_URL_PROPERTY_NAME = "jarvis.url";
+	private static final String DEFAULT_SESSION_ID_PROPERTY_NAME = "default.session.id";
+	
 	private static final String AVAILABLE_STATUS = "available";
 	private static final String WEBCAM_SCRIPT_PROPERTY_NAME = "webcam_script.path";
+	private static final String SESSION_ID_HEADER_NAME = "sessionId";
 
 	private static final Logger logger = LogManager.getLogger(JarvisClient.class);
 
-	private static String JARVIS_URL = null;
+	private String jarvisUrl = null;
+	private String sessionId = null;
 
 	/**
 	 * All Jarvis services
@@ -66,6 +71,12 @@ public class JarvisClient
 		initialize();
 	}
 
+	public JarvisClient(String sessionId) throws JarvisConfigurationException
+	{
+		initialize();
+		this.sessionId = sessionId;
+	}
+
 	/**
 	 * Initializes Jarvis client library
 	 * 
@@ -75,12 +86,22 @@ public class JarvisClient
 	{
 		try
 		{
-			JARVIS_URL = PropertiesHolder.getInstance().getProperty("jarvis.url") + "/api";
+			this.jarvisUrl = PropertiesHolder.getInstance().getProperty(JARVIS_URL_PROPERTY_NAME) != null
+					? PropertiesHolder.getInstance().getProperty(JARVIS_URL_PROPERTY_NAME) + "/api"
+					: null;
+			this.sessionId = PropertiesHolder.getInstance().getProperty(DEFAULT_SESSION_ID_PROPERTY_NAME) != null
+					? PropertiesHolder.getInstance().getProperty(DEFAULT_SESSION_ID_PROPERTY_NAME)
+					: null;
 		}
 		catch (IOException e)
 		{
 			logger.error(e);
 			throw new JarvisConfigurationException(e);
+		}
+
+		if (this.jarvisUrl == null)
+		{
+			throw new JarvisConfigurationException("Jarvis url cannot be empty.");
 		}
 	}
 
@@ -91,7 +112,7 @@ public class JarvisClient
 	 */
 	public boolean isJarvisAvailable()
 	{
-		Status status = ClientBuilder.newClient().target(JARVIS_URL).path(Services.STATUS.getUri())
+		Status status = ClientBuilder.newClient().target(jarvisUrl).path(Services.STATUS.getUri())
 				.request(MediaType.APPLICATION_JSON).get(Status.class);
 
 		return AVAILABLE_STATUS.equals(status.getStatus());
@@ -104,7 +125,7 @@ public class JarvisClient
 	 */
 	public String getLanguage()
 	{
-		Language lang = ClientBuilder.newClient().target(JARVIS_URL).path(Services.LANGUAGE.getUri())
+		Language lang = ClientBuilder.newClient().target(jarvisUrl).path(Services.LANGUAGE.getUri())
 				.request(MediaType.APPLICATION_JSON).get(Language.class);
 
 		return lang != null ? lang.getLanguage() : "undefined";
@@ -136,7 +157,7 @@ public class JarvisClient
 
 		logger.info("Say cheese!");
 
-		Response response = ClientBuilder.newClient().target(JARVIS_URL).path(Services.ACTIONS.getUri())
+		Response response = ClientBuilder.newClient().target(jarvisUrl).path(Services.ACTIONS.getUri())
 				.request(MediaType.APPLICATION_JSON).post(Entity.entity(actions, MediaType.APPLICATION_JSON));
 
 		waitForJarvis();
@@ -160,7 +181,8 @@ public class JarvisClient
 		FormDataMultiPart multipart = (FormDataMultiPart) formDataMultiPart.field("out.wav", "command")
 				.bodyPart(filePart);
 
-		Response response = client.target(JARVIS_URL).path(Services.ACTIONS.getUri()).request()
+		Response response = client.target(jarvisUrl).path(Services.ACTIONS.getUri()).request()
+				.header(SESSION_ID_HEADER_NAME, this.sessionId)
 				.post(Entity.entity(multipart, multipart.getMediaType()));
 
 		try
@@ -204,8 +226,9 @@ public class JarvisClient
 
 		logger.info("Speak up Jarvis.");
 
-		Response response = ClientBuilder.newClient().target(JARVIS_URL).path(Services.ACTIONS.getUri())
-				.request(MediaType.APPLICATION_JSON).post(Entity.entity(actions, MediaType.APPLICATION_JSON));
+		Response response = ClientBuilder.newClient().target(jarvisUrl).path(Services.ACTIONS.getUri())
+				.request(MediaType.APPLICATION_JSON).header(SESSION_ID_HEADER_NAME, this.sessionId)
+				.post(Entity.entity(actions, MediaType.APPLICATION_JSON));
 
 		if (wait)
 			waitForJarvis();
@@ -259,6 +282,7 @@ public class JarvisClient
 			catch (InterruptedException e)
 			{
 				logger.error(e);
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
@@ -272,7 +296,7 @@ public class JarvisClient
 	{
 		logger.info("Enabling sound system");
 
-		Response response = ClientBuilder.newClient().target(JARVIS_URL).path(Services.ENABLE_SOUND.getUri())
+		Response response = ClientBuilder.newClient().target(jarvisUrl).path(Services.ENABLE_SOUND.getUri())
 				.request(MediaType.APPLICATION_JSON).get();
 
 		return response.getStatus() == 200;
@@ -287,7 +311,7 @@ public class JarvisClient
 	{
 		logger.info("Disabling sound system");
 
-		Response response = ClientBuilder.newClient().target(JARVIS_URL).path(Services.DISABLE_SOUND.getUri())
+		Response response = ClientBuilder.newClient().target(jarvisUrl).path(Services.DISABLE_SOUND.getUri())
 				.request(MediaType.APPLICATION_JSON).get();
 
 		return response.getStatus() == 200;

@@ -38,7 +38,7 @@ public class Demo
 
 </p>
 
-## Current Release: v0.0.1
+## Current Release: v0.0.2
 
 ## Current Feature Requests/Suggestions
 Pending..

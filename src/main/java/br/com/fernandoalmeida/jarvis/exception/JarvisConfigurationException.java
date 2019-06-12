@@ -15,4 +15,9 @@ public class JarvisConfigurationException extends Exception
 		super(e);
 	}
 
+	public JarvisConfigurationException(String reason)
+	{
+		super(reason);
+	}
+
 }
