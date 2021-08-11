@@ -12,6 +12,7 @@ A client library for Jarvis written in JAVA, useful for home automation using Ja
 ## Sample code
 <p>
 
+```
 package br.com.fernandoalmeida.jarvis;
 
 import br.com.fernandoalmeida.jarvis.client.JarvisClient;
@@ -35,7 +36,8 @@ public class Demo
 	}
 
 }
-
+```
+	
 </p>
 
 ## Current Release: v0.0.2
