@@ -2,7 +2,12 @@ package br.com.fernandoalmeida.jarvis.entities;
 
 import java.io.Serializable;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 /**
  * Status message returned by Jarvis apis
@@ -11,24 +16,11 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  */
 @XmlRootElement
+@Data
+@NoArgsConstructor
 public class Status implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	String status;
-
-	public Status()
-	{
-	}
-
-	public String getStatus()
-	{
-		return status;
-	}
-
-	public void setStatus(String status)
-	{
-		this.status = status;
-	}
-
+	@NonNull @XmlElement(name = "status") String stat;
 }

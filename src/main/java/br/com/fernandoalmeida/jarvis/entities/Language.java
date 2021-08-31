@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+
 /**
  * Language returned by Jarvis apis
  * 
@@ -11,24 +15,11 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  */
 @XmlRootElement
+@Data
+@NoArgsConstructor
 public class Language implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	private String language;
-
-	public Language()
-	{
-	}
-
-	public String getLanguage()
-	{
-		return language;
-	}
-
-	public void setLanguage(String language)
-	{
-		this.language = language;
-	}
-
+	@NonNull private String lang;
 }
