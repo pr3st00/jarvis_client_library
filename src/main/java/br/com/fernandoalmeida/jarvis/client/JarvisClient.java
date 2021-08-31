@@ -11,7 +11,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 
 import br.com.fernandoalmeida.jarvis.PropertiesHolder;
@@ -22,7 +21,7 @@ import br.com.fernandoalmeida.jarvis.entities.MultipleActions;
 import br.com.fernandoalmeida.jarvis.entities.Status;
 import br.com.fernandoalmeida.jarvis.exception.JarvisConfigurationException;
 import br.com.fernandoalmeida.jarvis.exception.JarvisRemoteException;
-import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Jarvis client library
@@ -30,7 +29,7 @@ import lombok.extern.java.Log;
  * @author Fernando Costa de Almeida
  *
  */
-@Log
+@Log4j2
 public class JarvisClient
 {
 	private static final String JARVIS_URL_PROPERTY_NAME = "jarvis.url";
@@ -42,6 +41,8 @@ public class JarvisClient
 
 	private String jarvisUrl = null;
 	private String sessionId = null;
+
+	private Client internalClient = null;
 
 	/**
 	 * All Jarvis services
@@ -84,16 +85,20 @@ public class JarvisClient
 	{
 		try
 		{
+			log.trace("Initializing java client api");
+
 			this.jarvisUrl = PropertiesHolder.getInstance().getProperty(JARVIS_URL_PROPERTY_NAME) != null
 					? PropertiesHolder.getInstance().getProperty(JARVIS_URL_PROPERTY_NAME) + "/api"
 					: null;
 			this.sessionId = PropertiesHolder.getInstance().getProperty(DEFAULT_SESSION_ID_PROPERTY_NAME) != null
 					? PropertiesHolder.getInstance().getProperty(DEFAULT_SESSION_ID_PROPERTY_NAME)
 					: null;
+
+			internalClient = ClientBuilder.newClient();
 		}
 		catch (IOException e)
 		{
-			log.warning(e.getLocalizedMessage());
+			log.error(e);
 			throw new JarvisConfigurationException(e);
 		}
 
@@ -110,7 +115,9 @@ public class JarvisClient
 	 */
 	public boolean isJarvisAvailable()
 	{
-		Status status = ClientBuilder.newClient().target(jarvisUrl).path(Services.STATUS.getUri())
+		logServiceCall(Services.STATUS.getUri());
+
+		Status status = internalClient.target(jarvisUrl).path(Services.STATUS.getUri())
 				.request(MediaType.APPLICATION_JSON).get(Status.class);
 
 		return AVAILABLE_STATUS.equals(status.getStat());
@@ -123,7 +130,9 @@ public class JarvisClient
 	 */
 	public String getLanguage()
 	{
-		Language lang = ClientBuilder.newClient().target(jarvisUrl).path(Services.LANGUAGE.getUri())
+		logServiceCall(Services.STATUS.getUri());
+
+		Language lang = internalClient.target(jarvisUrl).path(Services.LANGUAGE.getUri())
 				.request(MediaType.APPLICATION_JSON).get(Language.class);
 
 		return lang != null ? lang.getLang() : "undefined";
@@ -155,7 +164,7 @@ public class JarvisClient
 
 		log.info("Say cheese!");
 
-		Response response = ClientBuilder.newClient().target(jarvisUrl).path(Services.ACTIONS.getUri())
+		Response response = internalClient.target(jarvisUrl).path(Services.ACTIONS.getUri())
 				.request(MediaType.APPLICATION_JSON).post(Entity.entity(actions, MediaType.APPLICATION_JSON));
 
 		waitForJarvis();
@@ -172,30 +181,28 @@ public class JarvisClient
 	 */
 	public boolean processAudio(File file) throws JarvisRemoteException
 	{
-		Client client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
-
-		FileDataBodyPart filePart = new FileDataBodyPart("file", file);
-		FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
-		FormDataMultiPart multipart = (FormDataMultiPart) formDataMultiPart.field("out.wav", "command")
-				.bodyPart(filePart);
-
-		Response response = client.target(jarvisUrl).path(Services.ACTIONS.getUri()).request()
-				.header(SESSION_ID_HEADER_NAME, this.sessionId)
-				.post(Entity.entity(multipart, multipart.getMediaType()));
-
-		try
+		try (AutoClosableClientProvider clientProvider = new AutoClosableClientProvider(true))
 		{
+			FileDataBodyPart filePart = new FileDataBodyPart("file", file);
+			FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
+			FormDataMultiPart multipart = (FormDataMultiPart) formDataMultiPart.field("out.wav", "command")
+					.bodyPart(filePart);
+
+			Response response = clientProvider.getClient().target(jarvisUrl).path(Services.ACTIONS.getUri()).request()
+					.header(SESSION_ID_HEADER_NAME, this.sessionId)
+					.post(Entity.entity(multipart, multipart.getMediaType()));
+
 			formDataMultiPart.close();
 			multipart.close();
+			
+			waitForJarvis();
+
+			return response.getStatus() == 200;
 		}
 		catch (IOException e)
 		{
 			throw new JarvisRemoteException(e);
 		}
-
-		waitForJarvis();
-
-		return response.getStatus() == 200;
 	}
 
 	/**
@@ -224,7 +231,7 @@ public class JarvisClient
 
 		log.info("Speak up Jarvis.");
 
-		Response response = ClientBuilder.newClient().target(jarvisUrl).path(Services.ACTIONS.getUri())
+		Response response = internalClient.target(jarvisUrl).path(Services.ACTIONS.getUri())
 				.request(MediaType.APPLICATION_JSON).header(SESSION_ID_HEADER_NAME, this.sessionId)
 				.post(Entity.entity(actions, MediaType.APPLICATION_JSON));
 
@@ -279,7 +286,7 @@ public class JarvisClient
 			}
 			catch (InterruptedException e)
 			{
-				log.warning(e.getLocalizedMessage());
+				log.error(e);
 				Thread.currentThread().interrupt();
 			}
 		}
@@ -294,7 +301,7 @@ public class JarvisClient
 	{
 		log.info("Enabling sound system");
 
-		Response response = ClientBuilder.newClient().target(jarvisUrl).path(Services.ENABLE_SOUND.getUri())
+		Response response = internalClient.target(jarvisUrl).path(Services.ENABLE_SOUND.getUri())
 				.request(MediaType.APPLICATION_JSON).get();
 
 		return response.getStatus() == 200;
@@ -309,10 +316,24 @@ public class JarvisClient
 	{
 		log.info("Disabling sound system");
 
-		Response response = ClientBuilder.newClient().target(jarvisUrl).path(Services.DISABLE_SOUND.getUri())
+		Response response = internalClient.target(jarvisUrl).path(Services.DISABLE_SOUND.getUri())
 				.request(MediaType.APPLICATION_JSON).get();
 
 		return response.getStatus() == 200;
+	}
+
+	public void close()
+	{
+		if (this.internalClient != null)
+		{
+			log.trace("Closing all internal resources");
+			internalClient.close();
+		}
+	}
+
+	private void logServiceCall(String uri)
+	{
+		log.trace("Calling service: " + uri);
 	}
 
 }

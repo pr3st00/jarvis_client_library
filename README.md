@@ -20,10 +20,12 @@ import br.com.fernandoalmeida.jarvis.exception.JarvisConfigurationException;
 
 public class Demo
 {
-
 	public static void main(String[] args) throws JarvisConfigurationException
 	{
 		JarvisClient client = new JarvisClient();
+
+		// Make sure audio is enabled
+		client.enableSound();
 
 		// Say something
 		client.say("Hi there!", "Smile for the camera!");
@@ -32,9 +34,10 @@ public class Demo
 		client.takePhoto("myphoto.jpg");
 
 		client.say("Check your picture now!");
-
+		
+		// Close all client internal resources
+		client.close();
 	}
-
 }
 ```
 	

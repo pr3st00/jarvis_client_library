@@ -26,6 +26,9 @@ public class Demo
 		client.takePhoto("myphoto.jpg");
 
 		client.say("Check your picture now!");
+		
+		// Close all client internal resources
+		client.close();
 
 	}
 
