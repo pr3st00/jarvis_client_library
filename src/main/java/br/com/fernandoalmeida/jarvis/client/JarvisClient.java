@@ -115,10 +115,7 @@ public class JarvisClient
 	 */
 	public boolean isJarvisAvailable()
 	{
-		logServiceCall(Services.STATUS.getUri());
-
-		Status status = internalClient.target(jarvisUrl).path(Services.STATUS.getUri())
-				.request(MediaType.APPLICATION_JSON).get(Status.class);
+		Status status = performGet(Services.STATUS, Status.class);
 
 		return AVAILABLE_STATUS.equals(status.getStat());
 	}
@@ -130,11 +127,8 @@ public class JarvisClient
 	 */
 	public String getLanguage()
 	{
-		logServiceCall(Services.STATUS.getUri());
-
-		Language lang = internalClient.target(jarvisUrl).path(Services.LANGUAGE.getUri())
-				.request(MediaType.APPLICATION_JSON).get(Language.class);
-
+		Language lang = performGet(Services.LANGUAGE, Language.class);
+		
 		return lang != null ? lang.getLang() : "undefined";
 	}
 
@@ -194,7 +188,7 @@ public class JarvisClient
 
 			formDataMultiPart.close();
 			multipart.close();
-			
+
 			waitForJarvis();
 
 			return response.getStatus() == 200;
@@ -301,8 +295,7 @@ public class JarvisClient
 	{
 		log.info("Enabling sound system");
 
-		Response response = internalClient.target(jarvisUrl).path(Services.ENABLE_SOUND.getUri())
-				.request(MediaType.APPLICATION_JSON).get();
+		Response response = performGet(Services.ENABLE_SOUND);
 
 		return response.getStatus() == 200;
 	}
@@ -316,8 +309,7 @@ public class JarvisClient
 	{
 		log.info("Disabling sound system");
 
-		Response response = internalClient.target(jarvisUrl).path(Services.DISABLE_SOUND.getUri())
-				.request(MediaType.APPLICATION_JSON).get();
+		Response response = performGet(Services.DISABLE_SOUND);
 
 		return response.getStatus() == 200;
 	}
@@ -331,9 +323,17 @@ public class JarvisClient
 		}
 	}
 
-	private void logServiceCall(String uri)
+	private Response performGet(Services service)
 	{
-		log.trace("Calling service: " + uri);
+		return performGet(service, Response.class);
+	}
+
+	private <T> T performGet(Services service, Class<T> returnClass)
+	{
+		log.trace("Calling service: " + service.getUri());
+
+		return internalClient.target(jarvisUrl).path(service.getUri()).request(MediaType.APPLICATION_JSON)
+				.get(returnClass);
 	}
 
 }

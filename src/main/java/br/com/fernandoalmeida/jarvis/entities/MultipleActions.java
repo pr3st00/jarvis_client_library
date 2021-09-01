@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 /**
  * Holds multiple actions
@@ -22,8 +23,8 @@ public class MultipleActions implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	private List<Action> actions;
-
+	@NonNull private List<Action> actions;
+	
 	public void addAction(Action action)
 	{
 		if (actions == null)
